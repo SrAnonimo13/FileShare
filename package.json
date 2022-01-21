@@ -1,0 +1,16 @@
+{
+  "name": "fileshare",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.mjs",
+  "scripts": {},
+  "keywords": [],
+  "author": "SrAnonimo13",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.25.0",
+    "dotenv": "^14.2.0",
+    "localtunnel": "^2.0.2",
+    "progress-stream": "^2.0.0"
+  }
+}
