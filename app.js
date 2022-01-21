@@ -155,7 +155,7 @@ function main() {
     if (hasKey('-G')) {
         const user = findKey('-G');
         const userPassword = config?.USERS?.[user]?.password ?? findKey('-UP');
-        const filePath = findKey('-PH');
+        const filePath = findKey('-FP');
         const customName = findKey('-FN');
 
         if (!user)
@@ -168,7 +168,7 @@ function main() {
             config.USERS = { user, password: userPassword };
 
         if (!filePath)
-            COLORS.InfoMessage(`O arquivo vai ser salvo em '${__dirname}', para mudar use '-PH <diretório>'`);
+            COLORS.InfoMessage(`O arquivo vai ser salvo em '${__dirname}', para mudar use '-FP <diretório>'`);
 
         if (!customName)
             COLORS.InfoMessage("Se quiser mudar o nome do arquivo use '-FN <nome do arquivo>'");
@@ -186,6 +186,10 @@ function main() {
                 COLORS.InfoMessage(`O seu arquivo esta em ${Math.round(pg.percentage)}%`);
                 COLORS.InfoMessage(`A velocidade de download e: ${String(speed / 1000).substring(0, 3)}mbs (${Math.round(speed)}kbs)`);
                 COLORS.WarningMessage("Não cancele o download antes da hora!");
+            })
+
+            progress.on('finish', () => {
+                COLORS.SuccessMessage("Arquivo abaixado!");
             })
 
             e.pipe(progress).pipe(createWriteStream(filePath ? `${filePath}/${filePathFull}` : filePathFull).on('error', e => {

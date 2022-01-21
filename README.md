@@ -35,7 +35,7 @@ e assim o download começara!
 e possível tambem mudar o local aonde o arquivo sera abaixado
 
 ```console
-$ node app.js -PH meusArquivosSecretos/segredos
+$ node app.js -FP meusArquivosSecretos/segredos
 ```
 
 e tambem você pode mudar o nome do arquivo
