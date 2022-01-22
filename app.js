@@ -55,7 +55,7 @@ const COLORS = {
 if (!existsSync('./config.json'))
     writeFileSync('./config.json', '{}');
 
-let config = new Proxy(require('./config.json'), {
+let config = new Proxy(JSON.parse(readFileSync('./config.json').toString()), {
     set(obj, prop, value) {
         (() => {
             if (prop == "USERS" && (JSON.stringify(value) ?? "[]") != "[]") {
@@ -78,12 +78,26 @@ let config = new Proxy(require('./config.json'), {
 if (!config.USERS)
     config.USERS = [];
 
-main();
+if(!hasKey('--child'))
+    main();
+else {
+    const localtunnel = require('localtunnel');
+
+    process.on('message', (msg) => {
+        console.log(msg);
+        const { USERNAME, PORT } = msg;
+
+        localtunnel(PORT, { subdomain: `file-share-${USERNAME.toLowerCase()}` }).catch(e => {
+            throw e;
+        })
+    })
+
+}
 
 function main() {
     const USERNAME = findKey('-U') ?? config?.USERNAME;
     const PASSWORD = findKey('-P') ?? config?.PASSWORD;
-    const PORT = process.env.PORT;
+    const PORT = 3344;
 
 
     if (findKey('-U') || findKey('-P')) {
@@ -108,7 +122,7 @@ function main() {
         if (!existsSync(FileDir))
             return COLORS.ErrorMessage('Esse arquivo não existe!');
 
-        fork('./child.js').send({ USERNAME });
+        fork(__filename, ['--child']).send({ USERNAME, PORT });
 
         http.createServer((req, res) => {
             if (req.method !== "GET") {

@@ -1,9 +1,11 @@
 {
-  "name": "fileshare",
+  "name": "fs",
   "version": "1.0.0",
   "description": "",
-  "main": "app.mjs",
-  "scripts": {},
+  "main": "app.js",
+  "scripts": {
+    "build-win-64": "pkg ."
+  },
   "keywords": [],
   "author": "SrAnonimo13",
   "license": "MIT",
@@ -11,6 +13,16 @@
     "axios": "^0.25.0",
     "dotenv": "^14.2.0",
     "localtunnel": "^2.0.2",
+    "pkg": "^5.5.2",
     "progress-stream": "^2.0.0"
+  },
+  "pkg": {
+    "targets": [
+      "node16-win-x64"
+    ],
+    "outputPath": "build"
+  },
+  "bin": {
+    "fs": "app.js"
   }
 }
