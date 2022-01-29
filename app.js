@@ -1,12 +1,17 @@
 // import { dc } from 'dotenv';
 require('dotenv').config();
 // import { createReadStream, existsSync, readFileSync, statSync, writeFileSync } from 'fs';
-const { createReadStream, existsSync, readFileSync, statSync, writeFileSync, createWriteStream } = require('fs');
+const { createReadStream, existsSync, readFileSync, writeFileSync, createWriteStream, mkdirSync, statSync } = require('fs');
 // import { fork } from 'child_process';
 const { fork } = require('child_process');
 // import http from 'http';
 const http = require('http');
 const { default: axios } = require('axios');
+const { execSync } = require('child_process');
+
+//Versão
+const VERSION = "1.0.1";
+const DIR = `${execSync('echo %userprofile%').toString('utf8').replace(/\\/g, '/').replace('\r\n', '')}/fileshare`
 
 const COLORS = {
     Reset: "\x1b[0m",
@@ -52,53 +57,53 @@ const COLORS = {
     }
 }
 
-if (!existsSync('./config.json'))
-    writeFileSync('./config.json', '{}');
+if (!existsSync(DIR))
+    mkdirSync(DIR);
 
-let config = new Proxy(JSON.parse(readFileSync('./config.json').toString()), {
+if (!existsSync(`${DIR}/config.json`))
+    writeFileSync(`${DIR}/config.json`, '{}');
+
+let config = new Proxy(JSON.parse(readFileSync(`${DIR}/config.json`).toString()), {
     set(obj, prop, value) {
-        (() => {
-            if (prop == "USERS" && (JSON.stringify(value) ?? "[]") != "[]") {
-                const verify = (e) => e?.user == value.user;
+        if (prop == "USERS" && (JSON.stringify(value) ?? "[]") != "[]") {
+            (() => {
+                const verify = (e) => e.user == value.user;
 
                 //Verifica se já existe um usuário
-                if (obj.USERS.filter(verify).length > 0)
+                console.log(obj.USERS.filter(verify));
+                if (obj.USERS.filter(verify).length > 0) {
                     return obj.USERS.filter(verify)[0].password = value.password;
+                }
 
                 return obj.USERS.push({ user, password } = value);
-            }
+            })();
 
-            obj[prop] = value
-        })()
+        }else obj[prop] = value;
 
-        writeFileSync('./config.json', JSON.stringify(obj));
+        writeFileSync(`${DIR}/config.json`, JSON.stringify(obj));
     }
 })
 
 if (!config.USERS)
     config.USERS = [];
 
-if(!hasKey('--child'))
+if (!hasKey('--child'))
     main();
 else {
     const localtunnel = require('localtunnel');
 
     process.on('message', (msg) => {
-        console.log(msg);
         const { USERNAME, PORT } = msg;
 
-        localtunnel(PORT, { subdomain: `file-share-${USERNAME.toLowerCase()}` }).catch(e => {
-            throw e;
-        })
+        localtunnel(PORT, { subdomain: `file-share-${USERNAME.toLowerCase()}` });
     })
 
 }
 
-function main() {
+async function main() {
     const USERNAME = findKey('-U') ?? config?.USERNAME;
     const PASSWORD = findKey('-P') ?? config?.PASSWORD;
     const PORT = 3344;
-
 
     if (findKey('-U') || findKey('-P')) {
         config.USERNAME = USERNAME;
@@ -168,7 +173,7 @@ function main() {
 
     if (hasKey('-G')) {
         const user = findKey('-G');
-        const userPassword = config?.USERS?.[user]?.password ?? findKey('-UP');
+        const userPassword = config?.USERS.filter(e => e.user == user)[0].password ?? findKey('-UP');
         const filePath = findKey('-FP');
         const customName = findKey('-FN');
 
@@ -237,7 +242,13 @@ function main() {
 }
 
 function getFileSplitted(dir) {
-    const fixDir = /(\w+\.)\w+/g.exec(dir)[0];
+    const regex = /(\w+\.)\w+/g;
+
+    let fixDir = dir;
+
+    if (regex.exec(dir))
+        fixDir = regex.exec(dir)[0];
+
     const type = fixDir.split('.')[1];
     const name = fixDir.split('.')[0];
 

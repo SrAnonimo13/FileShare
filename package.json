@@ -1,9 +1,13 @@
 {
   "name": "fs",
-  "version": "1.0.0",
-  "description": "",
-  "main": "app.js",
+  "version": "1.0.1",
+  "description": "App using for share file",
+  "main": "server.js",
   "scripts": {
+    "start": "node server.js",
+    "dev-server": "nodemon server.js",
+    "start-app": "node app.js",
+    "build": "npm run build-win-64",
     "build-win-64": "pkg ."
   },
   "keywords": [],
@@ -20,9 +24,12 @@
     "targets": [
       "node16-win-x64"
     ],
-    "outputPath": "build"
+    "outputPath": "apps"
   },
   "bin": {
     "fs": "app.js"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
   }
 }
