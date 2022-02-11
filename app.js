@@ -70,7 +70,6 @@ let config = new Proxy(JSON.parse(readFileSync(`${DIR}/config.json`).toString())
                 const verify = (e) => e.user == value.user;
 
                 //Verifica se já existe um usuário
-                console.log(obj.USERS.filter(verify));
                 if (obj.USERS.filter(verify).length > 0) {
                     return obj.USERS.filter(verify)[0].password = value.password;
                 }
@@ -173,7 +172,7 @@ async function main() {
 
     if (hasKey('-G')) {
         const user = findKey('-G');
-        const userPassword = config?.USERS.filter(e => e.user == user)[0].password ?? findKey('-UP');
+        const userPassword = config?.USERS.filter(e => e.user == user)[0]?.password ?? findKey('-UP');
         const filePath = findKey('-FP');
         const customName = findKey('-FN');
 
@@ -183,8 +182,9 @@ async function main() {
         if (!userPassword)
             return COLORS.ErrorMessage(`Não a senha para o usuário '${user}', adicione uma com '-UP <senha>'`);
 
-        if (hasKey('-UP'))
-            config.USERS = { user, password: userPassword };
+        if (findKey('-UP')){
+            config.USERS = { user, password: findKey('-UP') };
+        }
 
         if (!filePath)
             COLORS.InfoMessage(`O arquivo vai ser salvo em '${__dirname}', para mudar use '-FP <diretório>'`);
@@ -197,22 +197,22 @@ async function main() {
 
             const progress = require('progress-stream')({ length: Number(length), time: 1000 });
             const filePathFull = `${customName ?? name}.${type}`;
-
+            
             progress.on('progress', (pg) => {
                 const speed = pg.speed / 1000;
-
+                
                 console.clear();
                 COLORS.InfoMessage(`O seu arquivo esta em ${Math.round(pg.percentage)}%`);
                 COLORS.InfoMessage(`A velocidade de download e: ${String(speed / 1000).substring(0, 3)}mbs (${Math.round(speed)}kbs)`);
                 COLORS.WarningMessage("Não cancele o download antes da hora!");
             })
-
+            
             progress.on('finish', () => {
                 COLORS.SuccessMessage("Arquivo abaixado!");
             })
-
+            
             e.pipe(progress).pipe(createWriteStream(filePath ? `${filePath}/${filePathFull}` : filePathFull).on('error', e => {
-                COLORS.ErrorMessage(`O diretório '${filePath}' não existe!`);
+                COLORS.ErrorMessage(e.message);
             }));
 
         }).catch(err => {
@@ -246,8 +246,9 @@ function getFileSplitted(dir) {
 
     let fixDir = dir;
 
-    if (regex.exec(dir))
+    if (!regex.test(dir)){
         fixDir = regex.exec(dir)[0];
+    }
 
     const type = fixDir.split('.')[1];
     const name = fixDir.split('.')[0];
