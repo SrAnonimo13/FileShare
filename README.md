@@ -27,7 +27,7 @@ $ node app.js -S arquivo.txt
 ## Abaixar arquivos!
 também e muito simples, use:
 ```console
-$ node app.js -G MeuAmigoMuitoLegal -UP senhaDoMeuAmigoMuitoLegal123
+$ node app.js -G OutroUsuario -UP senhaDoOutroUsuario
 ```
 
 e assim o download começara!
@@ -35,11 +35,11 @@ e assim o download começara!
 e possível tambem mudar o local aonde o arquivo sera abaixado
 
 ```console
-$ node app.js -FP meusArquivosSecretos/segredos
+$ node app.js -FP ArquivosSecretos/segredos
 ```
 
 e tambem você pode mudar o nome do arquivo
 
 ```console
-$ node app.js -FN naoVejaIssoMamae
+$ node app.js -FN arquivoBaixado
 ```
